@@ -4,7 +4,7 @@ cote = 50
 colonnes = 28
 lignes = 18
 points = []
-
+portee = 6
 
 
 def setup():
@@ -16,7 +16,7 @@ def draw():
     points = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
     for i in range(colonnes+1):
         for j in range(lignes+1):
-            points[i][j] = distort(points[i][j])
+            points[i][j] = distort(points[i][j],portee)
     for i in range(colonnes):
         for j in range(lignes):
             couleur = (i+j)%2 * 255
@@ -33,41 +33,41 @@ def case(i,j,couleur):
     vertex(points[i][j+1].x,points[i][j+1].y,);
     endShape(CLOSE);
 
-def vibre(point):
+def vibre(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    porte = cote*10
+    porte = cote*casePortee
     amplitudemax = cote / 4
     amplitude = amplitudemax * (1 - distance / porte)
     if distance > 0  and distance<porte:
         point = point.add(PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
     return point
             
-def sphere(point):
+def sphere(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    portee = cote*4
+    portee = cote*casePortee
     if distance > 0  and distance<portee:
         ratio = distance/portee
         rayon = PVector.sub(point,mousePos)
         point = PVector.add(point,rayon.mult(1-ratio))
     return point
 
-def tourbillon(point):
+def tourbillon(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    portee = cote*8
+    portee = cote*casePortee
     if distance > 0  and distance<portee:
         ratio = distance/portee
         rayon = PVector.sub(point,mousePos)
         point = PVector.add(mousePos,rayon.rotate((1-ratio)*(1-ratio)*math.pi/3))
     return point
 
-def bruit(point):
+def bruit(point,casePortee):
     s = 0.01
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    portee = cote*4
+    portee = cote*casePortee
     if distance > 0  and distance<portee:
         ratio = distance/portee
         rayon = PVector.sub(point,mousePos)
@@ -80,10 +80,10 @@ def bruit(point):
     return point
 
 
-def creux(point):
+def creux(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    porte = cote*6
+    porte = cote*casePortee
     if distance > 0  and distance<porte:
         coef = (porte-distance)/(porte)
         point = point.add(mousePos.sub(point).mult(sin(coef)))
@@ -94,7 +94,7 @@ distortions = [bruit,
                sphere,
                creux,
                vibre,
-               lambda p: sphere(tourbillon(p)),
+               lambda pi,po: sphere(tourbillon(pi,po),po-2),
               ]
 distort = distortions[0]
 
