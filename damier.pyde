@@ -64,19 +64,14 @@ def tourbillon(point,casePortee):
     return point
 
 def bruit(point,casePortee):
-    s = 0.01
+    s = 0.005
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
     portee = cote*casePortee
     if distance > 0  and distance<portee:
         ratio = distance/portee
-        rayon = PVector.sub(point,mousePos)
-        #point = PVector.add(point,PVector((noise(rayon.x)-0.5)*cote/2,(noise(rayon.y)-0.5)*cote/2))
-        #point = PVector.add(point,PVector((noise(point.x)-0.5)*cote,(noise(point.y)-0.5)*cote))
-        point = PVector.add(point,PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.y*s)-0.5)*cote*2).mult(1-ratio))
-        #point = PVector.add(point,rayon.mult(noise(rayon.x,rayon.y)/10))
-        #point = PVector.add(point,rayon.mult(noise(point.x,point.y)/5))
-        #point = PVector.add(point,rayon.mult(noise(point.x,point.y)/5))
+        perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
+        point = PVector.add(point,perturbation.mult(1-ratio))
     return point
 
 
