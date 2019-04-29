@@ -1,20 +1,27 @@
 import math
 
 cote = 50
-colonnes = 28
-lignes = 18
+colonnesVisibles = 28
+lignesVisibles = 18
+marges = 2
 origines = []
 points = []
 portee = 6
 ticPrecedent = 0
+colonnes = colonnesVisibles + 2*marges
+lignes = lignesVisibles + 2*marges
 
 def setup():
-    size(colonnes*cote,lignes*cote)
+    size(colonnesVisibles*cote,lignesVisibles*cote)
     global origines, points, ticPrecedent
-    origines = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
-    points = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
+    origines = grilleCarre()
+    points = grilleCarre()
     ticPrecedent=millis()
 
+
+def grilleCarre():
+    global marges, colonnes, lignes, cote
+    return [[PVector(i*cote,j*cote) for j in range(-marges,lignes+1)] for i in range(-marges,colonnes+1)]
 
 def draw():
     global origines, points, ticPrecedent
@@ -36,8 +43,8 @@ def dessineGrille(grille):
 
 def deplaceVers(points,cibles,delai):
     deplacementMax=0.1*delai
-    for i in range(colonnes):
-        for j in range(lignes):
+    for i in range(1,colonnes):
+        for j in range(1,lignes):
             point = points[i][j]
             cible = cibles[i][j]
             vecteur = PVector.sub(cible,point)
