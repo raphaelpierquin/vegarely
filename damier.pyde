@@ -24,6 +24,10 @@ def draw():
     ticPrecedent=tic
     dessineGrille(points)
 
+def freeze():
+    global origines, points
+    origines = [[points[i][j].copy() for j in range(lignes+1)] for i in range(colonnes+1)]
+
 def dessineGrille(grille):
     for i in range(colonnes):
         for j in range(lignes):
@@ -117,3 +121,7 @@ def mouseClicked():
     global distortions,  distort
     index=distortions.index(distort)
     distort=distortions[(index+1) % len(distortions)]
+
+def keyPressed():
+    if key=='\n':
+        freeze()
