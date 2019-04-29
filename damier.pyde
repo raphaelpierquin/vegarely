@@ -115,10 +115,21 @@ def creux(point,casePortee):
         point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
+def creux2(point,casePortee):
+    mousePos = PVector(mouseX, mouseY)
+    rayon = PVector.sub(point,mousePos)
+    distance = max(abs(rayon.x),abs(rayon.y))
+    porte = cote*casePortee
+    if distance > 0  and distance<porte:
+        coef = (porte-distance)/(porte)
+        point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
+    return point
+
 distortions = [bruit,
                tourbillon,
                sphere,
                creux,
+               creux2,
                vibre,
                lambda pi,po: sphere(tourbillon(pi,po),po-2),
               ]
