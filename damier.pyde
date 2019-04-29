@@ -3,34 +3,53 @@ import math
 cote = 50
 colonnes = 28
 lignes = 18
+origines = []
 points = []
 portee = 6
-
+ticPrecedent = 0
 
 def setup():
     size(colonnes*cote,lignes*cote)
+    global origines, points
+    origines = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
+    points = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
+    ticPrecedent=millis()
 
 
 def draw():
-    global points
-    points = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
-    for i in range(colonnes+1):
-        for j in range(lignes+1):
-            points[i][j] = distort(points[i][j],portee)
+    global origines, points
+    cibles = [[distort(origines[i][j],portee) for j in range(lignes+1)] for i in range(colonnes+1)]
+    tic=millis()
+    deplaceVers(points,cibles,tic-ticPrecedent)
+    ticPrecent=tic
+    dessineGrille(points)
+
+def dessineGrille(grille):
     for i in range(colonnes):
         for j in range(lignes):
             couleur = (i+j)%2 * 255
-            case(i,j,couleur)
-    
-    
-def case(i,j,couleur):
+            dessineCase(grille,i,j,couleur)
+
+def deplaceVers(points,cibles,delai):
+    for i in range(colonnes):
+        for j in range(lignes):
+            point = points[i][j]
+            cible = cibles[i][j]
+            vecteur = PVector.sub(cible,point)
+            distance = vecteur.mag()
+            if distance > 10:
+                vecteur.mult(10/distance)
+            point.add(vecteur)
+
+
+def dessineCase(grille,i,j,couleur):
     fill(couleur);
     stroke(couleur);
     beginShape();
-    vertex(points[i][j].x,points[i][j].y,);
-    vertex(points[i+1][j].x,points[i+1][j].y,);
-    vertex(points[i+1][j+1].x,points[i+1][j+1].y,);
-    vertex(points[i][j+1].x,points[i][j+1].y,);
+    vertex(grille[i][j].x,grille[i][j].y,);
+    vertex(grille[i+1][j].x,grille[i+1][j].y,);
+    vertex(grille[i+1][j+1].x,grille[i+1][j+1].y,);
+    vertex(grille[i][j+1].x,grille[i][j+1].y,);
     endShape(CLOSE);
 
 def vibre(point,casePortee):
@@ -40,9 +59,9 @@ def vibre(point,casePortee):
     amplitudemax = cote / 4
     amplitude = amplitudemax * (1 - distance / porte)
     if distance > 0  and distance<porte:
-        point = point.add(PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
+        point = PVector.add(point,PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
     return point
-            
+
 def sphere(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
@@ -81,7 +100,7 @@ def creux(point,casePortee):
     porte = cote*casePortee
     if distance > 0  and distance<porte:
         coef = (porte-distance)/(porte)
-        point = point.add(mousePos.sub(point).mult(sin(coef)))
+        point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
 distortions = [bruit,
