@@ -10,18 +10,18 @@ ticPrecedent = 0
 
 def setup():
     size(colonnes*cote,lignes*cote)
-    global origines, points
+    global origines, points, ticPrecedent
     origines = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
     points = [[PVector(i*cote,j*cote) for j in range(lignes+1)] for i in range(colonnes+1)]
     ticPrecedent=millis()
 
 
 def draw():
-    global origines, points
+    global origines, points, ticPrecedent
     cibles = [[distort(origines[i][j],portee) for j in range(lignes+1)] for i in range(colonnes+1)]
     tic=millis()
     deplaceVers(points,cibles,tic-ticPrecedent)
-    ticPrecent=tic
+    ticPrecedent=tic
     dessineGrille(points)
 
 def dessineGrille(grille):
@@ -31,14 +31,15 @@ def dessineGrille(grille):
             dessineCase(grille,i,j,couleur)
 
 def deplaceVers(points,cibles,delai):
+    deplacementMax=0.1*delai
     for i in range(colonnes):
         for j in range(lignes):
             point = points[i][j]
             cible = cibles[i][j]
             vecteur = PVector.sub(cible,point)
             distance = vecteur.mag()
-            if distance > 10:
-                vecteur.mult(10/distance)
+            if distance > deplacementMax:
+                vecteur.mult(deplacementMax/distance)
             point.add(vecteur)
 
 
