@@ -64,59 +64,44 @@ def dessineCase(grille,i,j,couleur):
     vertex(grille[i][j+1].x,grille[i][j+1].y,);
     endShape(CLOSE);
 
-def vibre(point,casePortee):
-    mousePos = PVector(mouseX, mouseY)
-    distance = point.dist(mousePos)
-    porte = cote*casePortee
+
+def focalise(distortion):
+    def df(point,casePortee):
+        mousePos = PVector(mouseX, mouseY)
+        distance = point.dist(mousePos)
+        portee = cote*casePortee
+        if distance>portee:
+            return point
+        coef = 1 - distance/portee
+        return distortion(point,mousePos,coef)
+    return df
+
+def vibref(point,mousePos,coef):
     amplitudemax = cote / 4
-    amplitude = amplitudemax * (1 - distance / porte)
-    if distance > 0  and distance<porte:
-        point = PVector.add(point,PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
+    amplitude = amplitudemax * coef
+    point = PVector.add(point,PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
     return point
 
-def sphere(point,casePortee):
-    mousePos = PVector(mouseX, mouseY)
-    distance = point.dist(mousePos)
-    portee = cote*casePortee
-    if distance>portee:
-        return point
-    ratio = distance/portee
+
+def spheref(point,mousePos,coef):
     rayon = PVector.sub(point,mousePos)
-    point = PVector.add(point,rayon.mult(1-ratio))
+    point = PVector.add(point,rayon.mult(coef))
     return point
 
-def tourbillon(point,casePortee):
-    mousePos = PVector(mouseX, mouseY)
-    distance = point.dist(mousePos)
-    portee = cote*casePortee
-    if distance>portee:
-        return point
-    ratio = distance/portee
+def tourbillonf(point,mousePos,coef):
     rayon = PVector.sub(point,mousePos)
-    point = PVector.add(mousePos,rayon.rotate((1-ratio)*(1-ratio)*math.pi/3))
+    point = PVector.add(mousePos,rayon.rotate(coef*coef*math.pi/3))
     return point
 
-def bruit(point,casePortee):
-    mousePos = PVector(mouseX, mouseY)
-    distance = point.dist(mousePos)
-    portee = cote*casePortee
-    if distance>portee:
-        return point
+def bruitf(point,mousePos,coef):
     s = 0.005
-    ratio = distance/portee
     perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
-    point = PVector.add(point,perturbation.mult(1-ratio))
+    point = PVector.add(point,perturbation.mult(coef))
     return point
 
 
-def creux(point,casePortee):
-    mousePos = PVector(mouseX, mouseY)
-    distance = point.dist(mousePos)
-    portee = cote*casePortee
-    if distance>portee:
-        return point
-    ratio = distance/portee
-    point = PVector.add(point,mousePos.sub(point).mult(sin(1-ratio)))
+def creuxEtoilef(point,mousePos,coef):
+    point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
 racine_de_deux = sqrt(2)
@@ -128,21 +113,21 @@ def creux2(point,casePortee):
     portee = cote*casePortee
     if distance>portee:
         return point
-    ratio = distance/portee
-    point = PVector.add(point,mousePos.sub(point).mult(sin(1-ratio)))
+    coef = 1 - distance/portee
+    point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
 def idem(point,casePortee):
     return point
 
 distortions = [idem,
-               bruit,
-               tourbillon,
-               sphere,
-               creux,
+               focalise(bruitf),
+               focalise(tourbillonf),
+               focalise(spheref),
+               focalise(creuxEtoilef),
                creux2,
-               vibre,
-               lambda pi,po: sphere(tourbillon(pi,po),po-2),
+               focalise(vibref),
+               focalise(lambda p,m,c: spheref(tourbillonf(p,m,c),m,c)),
               ]
 distort = distortions[0]
 
