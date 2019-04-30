@@ -78,54 +78,65 @@ def sphere(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
     portee = cote*casePortee
-    if distance > 0  and distance<portee:
-        ratio = distance/portee
-        rayon = PVector.sub(point,mousePos)
-        point = PVector.add(point,rayon.mult(1-ratio))
+    if distance>portee:
+        return point
+    ratio = distance/portee
+    rayon = PVector.sub(point,mousePos)
+    point = PVector.add(point,rayon.mult(1-ratio))
     return point
 
 def tourbillon(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
     portee = cote*casePortee
-    if distance > 0  and distance<portee:
-        ratio = distance/portee
-        rayon = PVector.sub(point,mousePos)
-        point = PVector.add(mousePos,rayon.rotate((1-ratio)*(1-ratio)*math.pi/3))
+    if distance>portee:
+        return point
+    ratio = distance/portee
+    rayon = PVector.sub(point,mousePos)
+    point = PVector.add(mousePos,rayon.rotate((1-ratio)*(1-ratio)*math.pi/3))
     return point
 
 def bruit(point,casePortee):
-    s = 0.005
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
     portee = cote*casePortee
-    if distance > 0  and distance<portee:
-        ratio = distance/portee
-        perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
-        point = PVector.add(point,perturbation.mult(1-ratio))
+    if distance>portee:
+        return point
+    s = 0.005
+    ratio = distance/portee
+    perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
+    point = PVector.add(point,perturbation.mult(1-ratio))
     return point
 
 
 def creux(point,casePortee):
     mousePos = PVector(mouseX, mouseY)
     distance = point.dist(mousePos)
-    porte = cote*casePortee
-    if distance > 0  and distance<porte:
-        coef = (porte-distance)/(porte)
-        point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
+    portee = cote*casePortee
+    if distance>portee:
+        return point
+    ratio = distance/portee
+    point = PVector.add(point,mousePos.sub(point).mult(sin(1-ratio)))
     return point
 
+racine_de_deux = sqrt(2)
 def creux2(point,casePortee):
+    global racine_de_deux
     mousePos = PVector(mouseX, mouseY)
     rayon = PVector.sub(point,mousePos)
-    distance = max(abs(rayon.x),abs(rayon.y))
-    porte = cote*casePortee
-    if distance > 0  and distance<porte:
-        coef = (porte-distance)/(porte)
-        point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
+    distance = max(abs(rayon.x),abs(rayon.y))*racine_de_deux
+    portee = cote*casePortee
+    if distance>portee:
+        return point
+    ratio = distance/portee
+    point = PVector.add(point,mousePos.sub(point).mult(sin(1-ratio)))
     return point
 
-distortions = [bruit,
+def idem(point,casePortee):
+    return point
+
+distortions = [idem,
+               bruit,
                tourbillon,
                sphere,
                creux,
@@ -137,9 +148,13 @@ distort = distortions[0]
 
 def mouseClicked():
     global distortions,  distort
-    index=distortions.index(distort)
-    distort=distortions[(index+1) % len(distortions)]
+    index = distortions.index(distort)
+    distort = distortions[(index+1) % len(distortions)]
 
 def keyPressed():
+    global distortions, distort
     if key=='\n':
         freeze()
+        distort = distortions[0]
+    elif key=='q':
+        exit()
