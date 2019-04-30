@@ -24,7 +24,7 @@ def grilleCarre():
     return [[PVector(i*cote,j*cote) for j in range(-marges,lignes+1)] for i in range(-marges,colonnes+1)]
 
 def draw():
-    global origines, points, ticPrecedent
+    global origines, points, ticPrecedent, portee
     cibles = [[distort(origines[i][j],portee) for j in range(lignes+1)] for i in range(colonnes+1)]
     tic=millis()
     deplaceVers(points,cibles,tic-ticPrecedent)
@@ -152,9 +152,13 @@ def mouseClicked():
     distort = distortions[(index+1) % len(distortions)]
 
 def keyPressed():
-    global distortions, distort
+    global distortions, distort, portee
     if key=='\n':
         freeze()
         distort = distortions[0]
     elif key=='q':
         exit()
+    elif keyCode==UP:
+        portee+=1
+    elif keyCode==DOWN:
+        portee-=1
