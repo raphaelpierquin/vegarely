@@ -1,4 +1,5 @@
 import math
+add_library('pdf')
 
 cote = 50
 colonnesVisibles = 28
@@ -11,6 +12,7 @@ force = 0.5
 ticPrecedent = 0
 colonnes = colonnesVisibles + 2*marges
 lignes = lignesVisibles + 2*marges
+printing=False
 
 def setup():
     size(colonnesVisibles*cote,lignesVisibles*cote)
@@ -30,7 +32,22 @@ def draw():
     tic=millis()
     deplaceVers(points,cibles,tic-ticPrecedent)
     ticPrecedent=tic
+    startPrinting()
     dessineGrille(points)
+    endPrinting()
+
+def startPrinting():
+    global printing
+    if printing:
+        filename="/tmp/damier-####.pdf"
+        print("printing to " + filename + "...")
+        beginRecord(PDF, filename )
+
+def endPrinting():
+    global printing
+    if printing:
+        endRecord()
+        printing = False
 
 def freeze():
     global origines, points
@@ -143,7 +160,7 @@ def mouseClicked():
     force = 0.5
 
 def keyPressed():
-    global distortions, distort, portee, force
+    global distortions, distort, portee, force, printing
     if key=='\n':
         freeze()
         distort = distortions[0]
@@ -161,3 +178,5 @@ def keyPressed():
         global distances, distance
         index = distances.index(distance)
         distance = distances[(index+1) % len(distances)]
+    elif key=='p':
+        printing = True
