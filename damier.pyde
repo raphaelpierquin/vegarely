@@ -93,31 +93,30 @@ def distanceAdd(p1,p2):
 distance=distanceEuclidienne
 distances=[distanceEuclidienne,distanceMax,distanceAdd]
 
-def vibref(point,mousePos,coef):
+def vibre(point,mousePos,coef):
     amplitudemax = cote / 4
     amplitude = amplitudemax * coef
     point = PVector.add(point,PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
     return point
 
 
-def spheref(point,mousePos,coef):
+def sphere(point,mousePos,coef):
     rayon = PVector.sub(point,mousePos)
     point = PVector.add(point,rayon.mult(coef))
     return point
 
-def tourbillonf(point,mousePos,coef):
+def tourbillon(point,mousePos,coef):
     rayon = PVector.sub(point,mousePos)
     point = PVector.add(mousePos,rayon.rotate(coef*coef*math.pi/3))
     return point
 
-def bruitf(point,mousePos,coef):
+def bruit(point,mousePos,coef):
     s = 0.005
     perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
     point = PVector.add(point,perturbation.mult(coef))
     return point
 
-
-def creuxEtoilef(point,mousePos,coef):
+def creux(point,mousePos,coef):
     point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
@@ -125,12 +124,12 @@ def idem(point,casePortee):
     return point
 
 distortions = [idem,
-               focalise(bruitf),
-               focalise(tourbillonf),
-               focalise(spheref),
-               focalise(creuxEtoilef),
-               focalise(vibref),
-               focalise(lambda p,m,c: spheref(tourbillonf(p,m,c),m,c)),
+               focalise(bruit),
+               focalise(tourbillon),
+               focalise(sphere),
+               focalise(creux),
+               focalise(vibre),
+               focalise(lambda p,m,c: sphere(tourbillon(p,m,c),m,c)),
               ]
 distort = distortions[0]
 
