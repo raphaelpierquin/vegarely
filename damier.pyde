@@ -134,9 +134,10 @@ distortions = [idem,
 distort = distortions[0]
 
 def mouseClicked():
-    global distortions,  distort
+    global distortions,  distort, distances, distance
     index = distortions.index(distort)
     distort = distortions[(index+1) % len(distortions)]
+    distance = distances[0]
 
 def keyPressed():
     global distortions, distort, portee
