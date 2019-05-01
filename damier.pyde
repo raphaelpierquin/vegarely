@@ -48,9 +48,9 @@ def deplaceVers(points,cibles,delai):
             point = points[i][j]
             cible = cibles[i][j]
             vecteur = PVector.sub(cible,point)
-            distance = vecteur.mag()
-            if distance > deplacementMax:
-                vecteur.mult(deplacementMax/distance)
+            ladistance = vecteur.mag()
+            if ladistance > 0 and ladistance > deplacementMax:
+                vecteur.mult(deplacementMax/ladistance)
             point.add(vecteur)
 
 
@@ -68,13 +68,30 @@ def dessineCase(grille,i,j,couleur):
 def focalise(distortion):
     def df(point,casePortee):
         mousePos = PVector(mouseX, mouseY)
-        distance = point.dist(mousePos)
+        ladistance = distance(point,mousePos)
         portee = cote*casePortee
-        if distance>portee:
+        if ladistance>portee:
             return point
-        coef = 1 - distance/portee
+        coef = 1 - ladistance/portee
         return distortion(point,mousePos,coef)
     return df
+
+def distanceEuclidienne(p1,p2):
+    return p1.dist(p2)
+
+ratiomagique = (1+sqrt(2))/2
+def distanceMax(p1,p2):
+    global ratiomagique
+    rayon = PVector.sub(p1,p2)
+    return max(abs(rayon.x),abs(rayon.y))*ratiomagique
+
+def distanceAdd(p1,p2):
+    global ratiomagique
+    rayon = PVector.sub(p1,p2)
+    return (abs(rayon.x)+abs(rayon.y))/ratiomagique
+
+distance=distanceEuclidienne
+distances=[distanceEuclidienne,distanceMax,distanceAdd]
 
 def vibref(point,mousePos,coef):
     amplitudemax = cote / 4
@@ -104,19 +121,6 @@ def creuxEtoilef(point,mousePos,coef):
     point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
     return point
 
-racine_de_deux = sqrt(2)
-def creux2(point,casePortee):
-    global racine_de_deux
-    mousePos = PVector(mouseX, mouseY)
-    rayon = PVector.sub(point,mousePos)
-    distance = max(abs(rayon.x),abs(rayon.y))*racine_de_deux
-    portee = cote*casePortee
-    if distance>portee:
-        return point
-    coef = 1 - distance/portee
-    point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
-    return point
-
 def idem(point,casePortee):
     return point
 
@@ -125,7 +129,6 @@ distortions = [idem,
                focalise(tourbillonf),
                focalise(spheref),
                focalise(creuxEtoilef),
-               creux2,
                focalise(vibref),
                focalise(lambda p,m,c: spheref(tourbillonf(p,m,c),m,c)),
               ]
@@ -147,3 +150,7 @@ def keyPressed():
         portee+=1
     elif keyCode==DOWN:
         portee-=1
+    elif key=='d':
+        global distances, distance
+        index = distances.index(distance)
+        distance = distances[(index+1) % len(distances)]
