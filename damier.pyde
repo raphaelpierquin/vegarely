@@ -7,6 +7,7 @@ marges = 2
 origines = []
 points = []
 portee = 6
+force = 0.5
 ticPrecedent = 0
 colonnes = colonnesVisibles + 2*marges
 lignes = lignesVisibles + 2*marges
@@ -24,8 +25,8 @@ def grilleCarre():
     return [[PVector(i*cote,j*cote) for j in range(-marges,lignes+1)] for i in range(-marges,colonnes+1)]
 
 def draw():
-    global origines, points, ticPrecedent, portee
-    cibles = [[distort(origines[i][j],portee) for j in range(lignes+1)] for i in range(colonnes+1)]
+    global origines, points, ticPrecedent, portee, force
+    cibles = [[distort(origines[i][j],portee,force) for j in range(lignes+1)] for i in range(colonnes+1)]
     tic=millis()
     deplaceVers(points,cibles,tic-ticPrecedent)
     ticPrecedent=tic
@@ -66,14 +67,14 @@ def dessineCase(grille,i,j,couleur):
 
 
 def focalise(distortion):
-    def df(point,casePortee):
+    def df(point,casePortee,force):
         mousePos = PVector(mouseX, mouseY)
         ladistance = distance(point,mousePos)
         portee = cote*casePortee
         if ladistance>portee:
             return point
         coef = 1 - ladistance/portee
-        return distortion(point,mousePos,coef)
+        return distortion(point,mousePos,coef,force)
     return df
 
 def distanceEuclidienne(p1,p2):
@@ -93,34 +94,35 @@ def distanceAdd(p1,p2):
 distance=distanceEuclidienne
 distances=[distanceEuclidienne,distanceMax,distanceAdd]
 
-def vibre(point,mousePos,coef):
-    amplitudemax = cote / 4
+def vibre(point,mousePos,coef,force):
+    amplitudemax = cote / 4 * force
     amplitude = amplitudemax * coef
     point = PVector.add(point,PVector(random(-amplitude,amplitude),random(-amplitude,amplitude)))
     return point
 
 
-def sphere(point,mousePos,coef):
+def sphere(point,mousePos,coef,force):
     rayon = PVector.sub(point,mousePos)
     point = PVector.add(point,rayon.mult(coef))
     return point
 
-def tourbillon(point,mousePos,coef):
+def tourbillon(point,mousePos,coef,force):
+    angleMax = math.pi/3*2*force
     rayon = PVector.sub(point,mousePos)
-    point = PVector.add(mousePos,rayon.rotate(coef*coef*math.pi/3))
+    point = PVector.add(mousePos,rayon.rotate(coef*coef*angleMax))
     return point
 
-def bruit(point,mousePos,coef):
+def bruit(point,mousePos,coef,force):
     s = 0.005
     perturbation = PVector((noise(point.x*s,mousePos.y*s)-0.5)*cote*2,(noise(point.y*s,mousePos.x*s)-0.5)*cote*2)
-    point = PVector.add(point,perturbation.mult(coef))
+    point = PVector.add(point,perturbation.mult(coef*force*2))
     return point
 
-def creux(point,mousePos,coef):
-    point = PVector.add(point,mousePos.sub(point).mult(sin(coef)))
+def creux(point,mousePos,coef,force):
+    point = PVector.add(point,mousePos.sub(point).mult(sin(coef*force*2)))
     return point
 
-def idem(point,casePortee):
+def idem(point,casePortee,force):
     return point
 
 distortions = [idem,
@@ -129,18 +131,19 @@ distortions = [idem,
                focalise(sphere),
                focalise(creux),
                focalise(vibre),
-               focalise(lambda p,m,c: sphere(tourbillon(p,m,c),m,c)),
+               focalise(lambda p,m,c,f: sphere(tourbillon(p,m,c,f),m,c,f)),
               ]
 distort = distortions[0]
 
 def mouseClicked():
-    global distortions,  distort, distances, distance
+    global distortions, distort, distances, distance, force
     index = distortions.index(distort)
     distort = distortions[(index+1) % len(distortions)]
     distance = distances[0]
+    force = 0.5
 
 def keyPressed():
-    global distortions, distort, portee
+    global distortions, distort, portee, force
     if key=='\n':
         freeze()
         distort = distortions[0]
@@ -150,6 +153,10 @@ def keyPressed():
         portee+=1
     elif keyCode==DOWN:
         portee-=1
+    elif keyCode==RIGHT:
+        force+=0.1
+    elif keyCode==LEFT:
+        force-=0.1
     elif key=='d':
         global distances, distance
         index = distances.index(distance)
