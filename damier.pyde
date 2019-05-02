@@ -1,9 +1,9 @@
 import math
 add_library('pdf')
 
-cote = 50
-colonnesVisibles = 28
-lignesVisibles = 18
+cote = 30
+colonnesVisibles = 41
+lignesVisibles = 27
 marges = 2
 origines = []
 points = []
