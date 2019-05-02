@@ -177,13 +177,14 @@ def mouseMoved():
         distort = nextDistortion
 
 def keyPressed():
-    global distortions, distort, distances, distance, portee, force, printing, noMoveYet, nextDistortion
-
+    global distortions, distort, distances, distance, portee, force, printing, noMoveYet, nextDistortion, origines
     if key==' ':
         index = distortions.index(distort)
         distort = distortions[(index+1) % len(distortions)]
         distance = distances[0]
         force = 0.5
+    elif key=='c':
+        origines = grilleCarre()
     elif key=='q':
         exit()
     elif keyCode==UP:
