@@ -26,7 +26,6 @@ def setup():
     points = grilleCarre()
     ticPrecedent=millis()
 
-
 def grilleCarre():
     global marges, colonnes, lignes, cote
     return [[PVector(i*cote,j*cote) for j in range(-marges,lignes+1)] for i in range(-marges,colonnes+1)]
@@ -52,6 +51,7 @@ def endPrinting():
     global printing
     if printing:
         endRecord()
+        print("... done.")
         printing = False
 
 def freeze():
@@ -125,6 +125,10 @@ def vibre(point,mousePos,coef,force):
 
 def sphere(point,mousePos,coef,force):
     rayon = PVector.sub(point,mousePos)
+    l = (force - 0.4) * 10
+    if l < 0:
+        l = 1/(1-l)
+    coef = coef ** l
     point = PVector.add(point,rayon.mult(coef))
     return point
 
@@ -148,27 +152,38 @@ def idem(point,casePortee,force):
     return point
 
 distortions = [idem,
-               focalise(bruit),
-               focalise(tourbillon),
                focalise(sphere),
                focalise(creux),
+               focalise(tourbillon),
                focalise(vibre),
                focalise(lambda p,m,c,f: sphere(tourbillon(p,m,c,f),m,c,f)),
+               focalise(bruit),
               ]
 distort = distortions[0]
+nextDistortion = distortions[1]
 
 def mouseClicked():
-    global distortions, distort, distances, distance, force
-    index = distortions.index(distort)
-    distort = distortions[(index+1) % len(distortions)]
-    distance = distances[0]
-    force = 0.5
+    global distortions, distort, nextDistortion, noMoveYet
+    freeze()
+    noMoveYet = True
+    nextDistortion = distort
+    distort = distortions[0]
+
+noMoveYet=True
+def mouseMoved():
+    global noMoveYet, distort, distortions, nextDistortion
+    if noMoveYet:
+        noMoveYet = False
+        distort = nextDistortion
 
 def keyPressed():
-    global distortions, distort, portee, force, printing
-    if key=='\n':
-        freeze()
-        distort = distortions[0]
+    global distortions, distort, distances, distance, portee, force, printing, noMoveYet, nextDistortion
+
+    if key==' ':
+        index = distortions.index(distort)
+        distort = distortions[(index+1) % len(distortions)]
+        distance = distances[0]
+        force = 0.5
     elif key=='q':
         exit()
     elif keyCode==UP:
@@ -177,10 +192,11 @@ def keyPressed():
         portee-=1
     elif keyCode==RIGHT:
         force+=0.1
+        print(force)
     elif keyCode==LEFT:
         force-=0.1
+        print(force)
     elif key=='d':
-        global distances, distance
         index = distances.index(distance)
         distance = distances[(index+1) % len(distances)]
     elif key=='p':
