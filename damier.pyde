@@ -126,8 +126,6 @@ def vibre(point,mousePos,coef,force):
 def sphere(point,mousePos,coef,force):
     rayon = PVector.sub(point,mousePos)
     l = (force - 0.4) * 10
-    if l < 0:
-        l = 1/(1-l)
     coef = coef ** l
     point = PVector.add(point,rayon.mult(coef))
     return point
@@ -193,10 +191,8 @@ def keyPressed():
         portee-=1
     elif keyCode==RIGHT:
         force+=0.1
-        print(force)
     elif keyCode==LEFT:
         force-=0.1
-        print(force)
     elif key=='d':
         index = distances.index(distance)
         distance = distances[(index+1) % len(distances)]
