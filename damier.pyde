@@ -1,5 +1,10 @@
 import math
-add_library('pdf')
+
+## uncomment when launching from command line
+from processing.pdf.PGraphicsPDF import PDF
+
+## uncomment when launching from IDE
+#add_library('pdf')
 
 cote = 30
 colonnesVisibles = 41
