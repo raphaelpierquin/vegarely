@@ -1,6 +1,6 @@
 # Vegarely
 
-Vegarely is an canvas editor ala Vasarely.
+Vegarely is an canvas editor ala Vasarely, such as [this example](examples/vega.pdf)
 
 You can run it with Processing / Python Mode.
 
